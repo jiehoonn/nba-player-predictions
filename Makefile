@@ -29,26 +29,46 @@ endif
 help:
 	@echo "NBA Player Predictions - Available Commands:"
 	@echo ""
+	@echo "SETUP:"
 	@echo "  make venv         Create virtual environment"
-	@echo "  make install      Create venv + install dependencies"
-	@echo "  make reinstall    Reinstall all dependencies (use after updating requirements.txt)"
-	@echo "  make notebook     Launch Jupyter notebook"
-	@echo "  make data         Collect NBA data via notebook 01 (~15-20 min)"
-	@echo "  make features     Engineer features via notebook 03"
-	@echo "  make train        Train models via notebooks 04 + 05"
-	@echo "  make evaluate     Run error analysis via notebook 06"
-	@echo "  make visualize    View/regenerate figures"
-	@echo "  make test         Run all tests"
+	@echo "  make install      Create venv + install dependencies (⭐ START HERE)"
+	@echo "  make reinstall    Reinstall all dependencies"
+	@echo ""
+	@echo "PIPELINE (Python modules):"
+	@echo "  make data         Collect NBA data from API (2-3 hours) ⚠️"
+	@echo "  make features     Engineer features (src/feature_engineering.py)"
+	@echo "  make train        Train models (src/train_models.py)"
+	@echo "  make evaluate     Evaluate on test set (src/evaluate.py)"
+	@echo "  make figures      Generate visualizations (src/generate_figures.py)"
+	@echo ""
+	@echo "PREDICTIONS:"
+	@echo "  make predict                          Interactive prediction tool"
+	@echo "  make predict PLAYER=\"Name\" OPP=TEAM   Quick prediction (command-line)"
+	@echo "  make fantasy                          Fantasy lineup optimizer"
+	@echo ""
+	@echo "TESTING:"
+	@echo "  make test         Run all tests (unit + integration)"
+	@echo "  make test-quick   Run unit tests only (fast)"
+	@echo "  make test-integration  Run integration tests (requires data)"
 	@echo "  make lint         Run code quality checks"
+	@echo ""
+	@echo "UTILITIES:"
+	@echo "  make notebook     Launch Jupyter notebook (for exploration)"
 	@echo "  make clean        Remove generated files"
 	@echo "  make clean-all    Remove generated files + venv"
-	@echo "  make all          Run entire pipeline (data → visualize)"
-	@echo "  make app          Launch interactive dashboard"
+	@echo "  make all          Run full pipeline (features → train → evaluate → figures)"
+	@echo "  make full         Run COMPLETE pipeline from scratch (data → all)"
 	@echo ""
-	@echo "Quick start:"
-	@echo "  make install      # First time setup"
-	@echo "  make notebook     # For data exploration"
-	@echo "  make all          # Run full pipeline"
+	@echo "QUICK START (from scratch - takes 3+ hours):"
+	@echo "  1. make install      # Install dependencies (5 min)"
+	@echo "  2. make data         # Collect NBA data (2-3 hours) ⚠️"
+	@echo "  3. make all          # Run full pipeline (3 min)"
+	@echo "  4. make test         # Run tests (2 min)"
+	@echo ""
+	@echo "QUICK START (with existing data - takes 5 min):"
+	@echo "  1. make install      # Install dependencies (5 min)"
+	@echo "  2. make all          # Run full pipeline (3 min)"
+	@echo "  3. make test         # Run tests (2 min)"
 	@echo ""
 	@echo "To activate venv manually:"
 	@echo "  source venv/bin/activate    (macOS/Linux)"
@@ -101,64 +121,65 @@ notebook: venv
 	@echo ""
 	$(JUPYTER) notebook
 
-# Data collection (via notebook)
+# Data collection (via Python module)
 data: venv
 	@echo "Collecting NBA data..."
-	@echo "This may take 15-20 minutes due to API rate limiting..."
-	@echo "Executing notebook: 01_data_collection.ipynb"
-	$(JUPYTER) nbconvert --to notebook --execute notebooks/01_data_collection.ipynb \
-		--output 01_data_collection_executed.ipynb --ExecutePreprocessor.timeout=1200 \
-		--allow-errors
+	@echo "⚠️  WARNING: This takes 2-3 HOURS due to NBA API rate limiting"
+	@echo "Using Python module: src.data_collection"
+	@echo ""
+	$(PYTHON) -m src.data_collection
 	@echo "✓ Data collection complete"
 
-# Feature engineering (via notebook)
+# Feature engineering (via Python module)
 features: venv
 	@echo "Engineering features..."
-	@echo "Executing notebook: 03_feature_engineering.ipynb"
-	$(JUPYTER) nbconvert --to notebook --execute notebooks/03_feature_engineering.ipynb \
-		--output 03_feature_engineering_executed.ipynb --ExecutePreprocessor.timeout=600 \
-		--allow-errors
+	@echo "Using Python module: src.feature_engineering"
+	$(PYTHON) -m src.feature_engineering
 	@echo "✓ Features created"
 
-# Model training (baseline + advanced via notebooks)
+# Model training (baseline + advanced via Python module)
 train: venv
-	@echo "Training baseline models..."
-	@echo "Executing notebook: 04_baseline_model.ipynb"
-	$(JUPYTER) nbconvert --to notebook --execute notebooks/04_baseline_model.ipynb \
-		--output 04_baseline_model_executed.ipynb --ExecutePreprocessor.timeout=600 \
-		--allow-errors
-	@echo ""
-	@echo "Training advanced models..."
-	@echo "Executing notebook: 05_advanced_models.ipynb"
-	$(JUPYTER) nbconvert --to notebook --execute notebooks/05_advanced_models.ipynb \
-		--output 05_advanced_models_executed.ipynb --ExecutePreprocessor.timeout=600 \
-		--allow-errors
+	@echo "Training models (Ridge + XGBoost)..."
+	@echo "Using Python module: src.train_models"
+	$(PYTHON) -m src.train_models
 	@echo "✓ Models trained"
 
-# Evaluation (error analysis via notebook)
+# Evaluation (via Python module)
 evaluate: venv
-	@echo "Running error analysis..."
-	@echo "Executing notebook: 06_error_analysis.ipynb"
-	$(JUPYTER) nbconvert --to notebook --execute notebooks/06_error_analysis.ipynb \
-		--output 06_error_analysis_executed.ipynb --ExecutePreprocessor.timeout=600 \
-		--allow-errors
+	@echo "Evaluating on test set..."
+	@echo "Using Python module: src.evaluate"
+	$(PYTHON) -m src.evaluate
 	@echo "✓ Evaluation complete"
 
-# Visualization (generated in notebooks)
+# Visualization (via Python module)
 visualize: venv
-	@echo "📊 Visualizations are generated within notebooks 02, 04, 05, 06"
-	@echo "All figures saved to: results/figures/"
-	@echo ""
-	@echo "To regenerate visualizations, run:"
-	@echo "  make train evaluate"
-	@echo ""
+	@echo "Generating comprehensive figures..."
+	@echo "Using Python module: src.generate_figures"
+	$(PYTHON) -m src.generate_figures
 	@echo "✓ Check results/figures/ for 12 PNG files"
+
+# Alias for visualize
+figures: visualize
 
 # Run all tests
 test: venv
-	@echo "Running tests..."
-	$(PYTEST) tests/ -v --cov=src --cov-report=term-missing
-	@echo "✓ Tests complete"
+	@echo "Running test suite..."
+	$(PYTEST) tests/ -v --cov=src --cov-report=term-missing --cov-report=html
+	@echo ""
+	@echo "✓ All tests complete"
+	@echo "Coverage report: htmlcov/index.html"
+
+# Run quick tests (skip slow integration tests)
+test-quick: venv
+	@echo "Running quick tests (unit tests only)..."
+	$(PYTEST) tests/test_feature_engineering.py tests/test_training.py tests/test_evaluation.py -v
+	@echo "✓ Quick tests complete"
+
+# Run integration tests (require data/models)
+test-integration: venv
+	@echo "Running integration tests..."
+	$(PYTEST) tests/test_pipeline.py tests/test_end_to_end.py -v
+	@echo "✓ Integration tests complete"
 
 # Lint code
 lint: venv
@@ -179,16 +200,20 @@ clean:
 	rm -rf data/raw/*
 	rm -rf data/processed/*
 	rm -rf data/cache/*
-	rm -rf models/*
+	rm -rf results/models/*
 	rm -rf results/figures/*
-	rm -rf results/metrics/*
+	rm -rf results/*.json
+	rm -rf results/*.parquet
+	rm -rf results/*.csv
+	rm -rf results/*.png
 	rm -rf __pycache__/
 	rm -rf src/__pycache__/
 	rm -rf tests/__pycache__/
 	rm -rf .pytest_cache/
+	rm -rf htmlcov/
 	rm -rf .coverage
 	rm -f *.log
-	@echo "✓ Cleaned"
+	@echo "✓ Cleaned all generated files (data, models, figures, results)"
 
 # Clean everything including venv
 clean-all: clean
@@ -196,37 +221,79 @@ clean-all: clean
 	rm -rf $(VENV_DIR)
 	@echo "✓ Everything cleaned"
 
-# Run entire pipeline (notebook-based)
-all: data features train evaluate visualize
+# Run entire pipeline (Python modules)
+all: features train evaluate figures
 	@echo ""
 	@echo "=========================================="
-	@echo "✅ Pipeline complete! 🎉"
+	@echo "✅ PIPELINE COMPLETE! 🎉"
 	@echo "=========================================="
 	@echo ""
 	@echo "📊 Results:"
-	@echo "  Models:  models/final/*.pkl (3 files)"
-	@echo "  Metrics: results/predictions/*.json"
+	@echo "  Models:  results/models/*.pkl (6 files)"
+	@echo "  Metrics: results/*.json (3 files)"
 	@echo "  Figures: results/figures/*.png (12 files)"
-	@echo ""
-	@echo "📓 Executed notebooks:"
-	@echo "  notebooks/*_executed.ipynb"
 	@echo ""
 	@echo "🔍 View results:"
 	@echo "  - Open results/figures/*.png"
 	@echo "  - Read README.md for full analysis"
-	@echo "  - Check notebooks/*_executed.ipynb for outputs"
+	@echo "  - Run 'make predict' for interactive predictions"
+	@echo "  - Run 'make test' to validate everything"
+	@echo ""
+	@echo "📝 Next steps:"
+	@echo "  make predict     # Try predictions"
+	@echo "  make test        # Run test suite"
 	@echo ""
 
-# Launch interactive dashboard
+# Run COMPLETE pipeline from scratch (including data collection)
+full: data all
+	@echo ""
+	@echo "=========================================="
+	@echo "✅ COMPLETE PIPELINE FINISHED! 🎉"
+	@echo "=========================================="
+	@echo ""
+	@echo "Everything built from scratch:"
+	@echo "  ✓ Data collected from NBA API"
+	@echo "  ✓ Features engineered"
+	@echo "  ✓ Models trained"
+	@echo "  ✓ Test evaluation complete"
+	@echo "  ✓ Figures generated"
+	@echo ""
+	@echo "Next: make test"
+	@echo ""
+
+# Make predictions (interactive - enhanced version)
+predict: venv
+	@echo "🏀 Launching NBA Player Prediction Tool..."
+	@echo ""
+	@echo "Usage examples (command-line mode):"
+	@echo "  make predict PLAYER=\"LeBron James\" OPP=BOS"
+	@echo "  make predict PLAYER=\"Stephen Curry\" OPP=LAL AWAY=1"
+	@echo "  make predict PLAYER=\"Giannis Antetokounmpo\" OPP=MIA REST=0"
+	@echo ""
+	@if [ -z "$(PLAYER)" ]; then \
+		$(PYTHON) -m src.predict_enhanced; \
+	else \
+		if [ "$(AWAY)" = "1" ]; then \
+			$(PYTHON) -m src.predict_enhanced --player "$(PLAYER)" --opponent "$(OPP)" --away --rest $(or $(REST),2); \
+		else \
+			$(PYTHON) -m src.predict_enhanced --player "$(PLAYER)" --opponent "$(OPP)" --rest $(or $(REST),2); \
+		fi \
+	fi
+
+# Fantasy basketball lineup optimizer
+fantasy: venv
+	@echo "🏆 Launching Fantasy Basketball Lineup Optimizer..."
+	@echo ""
+	$(PYTHON) examples/fantasy_lineup_optimizer.py
+
+# Launch interactive dashboard (optional)
 app: venv
 	@echo "Launching dashboard at http://localhost:8501"
-	$(STREAMLIT) run app.py
-
-# Quick test (fast subset for CI)
-test-quick: venv
-	@echo "Running quick tests..."
-	$(PYTEST) tests/unit/ -v
-	@echo "✓ Quick tests complete"
+	@if [ -f "app.py" ]; then \
+		$(STREAMLIT) run app.py; \
+	else \
+		echo "⚠️  app.py not found. Streamlit dashboard not implemented yet."; \
+	fi
 
 # CI/CD target (used by GitHub Actions)
 ci: install lint test-quick

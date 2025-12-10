@@ -38,11 +38,14 @@ models/*
 
 # Results (generated, can be recreated)
 results/figures/*
-results/metrics/*
-results/predictions/*
+results/models/*
+results/*.json
+results/*.parquet
+results/*.csv
+results/*.png
 !results/figures/.gitkeep
-!results/metrics/.gitkeep
-!results/predictions/.gitkeep
+!results/models/.gitkeep
+!results/.gitkeep
 
 # IDE
 .vscode/
