@@ -36,9 +36,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run tests
+    - name: Run tests (unit tests only - data/models not in repo)
       run: |
         pytest tests/ -v --cov=src --cov-report=term-missing
+      continue-on-error: false
 
   lint:
     name: Code Quality
