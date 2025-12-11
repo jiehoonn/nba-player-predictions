@@ -39,8 +39,8 @@ This project implements a **complete, end-to-end machine learning pipeline** to 
 
 ## 🎥 Project Presentation
 
-<!-- YouTube video embed will go here -->
-**[Video Link - To Be Added]**
+<!-- YouTube video embed will go here --> https://www.youtube.com/watch?v=4C-cIAOJISY
+**[![VIDEO DEMO](https://img.youtube.com/vi/4C-cIAOJISY/0.jpg)](https://www.youtube.com/watch?v=4C-cIAOJISY)**
 
 <!--
 Example embed code:
